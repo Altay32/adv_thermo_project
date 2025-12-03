@@ -1,0 +1,496 @@
+classdef Otto_Cycle < matlab.apps.AppBase
+
+    % Properties that correspond to app components
+    properties (Access = public)
+        UIFigure                        matlab.ui.Figure
+        TextArea                        matlab.ui.control.TextArea
+        EfficiencyEditField             matlab.ui.control.EditField
+        EfficiencyEditFieldLabel        matlab.ui.control.Label
+        NetworkdonepercycleinkJkgEditField  matlab.ui.control.EditField
+        NetworkdonepercycleinkJkgEditFieldLabel  matlab.ui.control.Label
+        T4inKelvinEditField             matlab.ui.control.EditField
+        T4inKelvinEditFieldLabel        matlab.ui.control.Label
+        P3inkPaEditField_2              matlab.ui.control.EditField
+        P3inkPaEditField_2Label         matlab.ui.control.Label
+        V4inCCEditField                 matlab.ui.control.EditField
+        V4inCCEditFieldLabel            matlab.ui.control.Label
+        P4inkPaEditField                matlab.ui.control.EditField
+        P4inkPaEditFieldLabel           matlab.ui.control.Label
+        T3inKelvinEditField             matlab.ui.control.EditField
+        T3inKelvinEditFieldLabel        matlab.ui.control.Label
+        V3inCCEditField                 matlab.ui.control.EditField
+        V3inCCEditFieldLabel            matlab.ui.control.Label
+        P2inkPaEditField                matlab.ui.control.EditField
+        P2inkPaEditFieldLabel           matlab.ui.control.Label
+        T2inKelvinEditField             matlab.ui.control.EditField
+        T2inKelvinEditFieldLabel        matlab.ui.control.Label
+        V2inCCEditField                 matlab.ui.control.EditField
+        V2inCCEditFieldLabel            matlab.ui.control.Label
+        CalculateandPlotButton          matlab.ui.control.Button
+        CylinderVolumeinCCSlider        matlab.ui.control.Slider
+        CylinderVolumeinCCSliderLabel   matlab.ui.control.Label
+        EditField                       matlab.ui.control.EditField
+        HeatAdditioninkJKgSlider        matlab.ui.control.Slider
+        HeatAdditioninkJKgSliderLabel   matlab.ui.control.Label
+        CompressionRatioSlider          matlab.ui.control.Slider
+        CompressionRatioSliderLabel     matlab.ui.control.Label
+        InputTemperatureinKelvinSlider  matlab.ui.control.Slider
+        InputTemperatureinKelvinLabel   matlab.ui.control.Label
+        SuctionPressureinKPaSlider      matlab.ui.control.Slider
+        SuctionPressureinKPaSliderLabel  matlab.ui.control.Label
+    end
+
+    
+    properties (Access = public)
+        Property % Description
+        n = 0;
+        Property2 % Description
+    end
+    
+    properties (Access = private)
+        Property4 % Description
+        cycl = 0 ;
+    end
+    
+    methods (Access = private)
+        
+        function results = func(app)
+            n = 0; 
+            cycl = 0;
+           
+        end
+    end
+    
+
+    % Callbacks that handle component events
+    methods (Access = private)
+
+        % Value changed function: SuctionPressureinKPaSlider
+        function SuctionPressureinKPaSliderValueChanged(app, event)
+            value = app.SuctionPressureinKPaSlider.Value;
+            P1 =   app.SuctionPressureinKPaSlider.Value;
+        end
+
+        % Value changed function: InputTemperatureinKelvinSlider
+        function InputTemperatureinKelvinSliderValueChanged(app, event)
+            value = app.InputTemperatureinKelvinSlider.Value;
+            T1 = app.InputTemperatureinKelvinSlider.Value;
+        end
+
+        % Value changed function: HeatAdditioninkJKgSlider
+        function HeatAdditioninkJKgSliderValueChanged(app, event)
+            value = app.HeatAdditioninkJKgSlider.Value;
+            q_in  = app.HeatAdditioninkJKgSlider.Value;
+        end
+
+        % Value changed function: CompressionRatioSlider
+        function CompressionRatioSliderValueChanged(app, event)
+            value = app.CompressionRatioSlider.Value;
+            r = app.CompressionRatioSlider.Value;
+        end
+
+        % Value changed function: CylinderVolumeinCCSlider
+        function CylinderVolumeinCCSliderValueChanged(app, event)
+            value = app.CylinderVolumeinCCSlider.Value;
+            V1 = app.CylinderVolumeinCCSlider.Value;
+            
+        end
+
+        % Callback function: CalculateandPlotButton, V2inCCEditField
+        function Calculate(app, event)
+            % This script calculates the Salient P, T, V for a Petrol Cycle
+% It also plots the P-V diagram 
+P1 =   app.SuctionPressureinKPaSlider.Value;
+T1 = app.InputTemperatureinKelvinSlider.Value;
+q_in  = app.HeatAdditioninkJKgSlider.Value;
+ r = app.CompressionRatioSlider.Value;
+ V1 = app.CylinderVolumeinCCSlider.Value;
+
+P1 = P1;   % Input Value in kPa
+T1=  T1 ; % Input Value in Kelvin
+r = r;  % Compression ratio
+gamma = 1.4; % ratio of specific heats
+q_in = q_in; % Input heating value in kJ/kg
+V1 = V1; % Input volume in cubic meter
+C_v = 0.718 ; % Input value in kJ/(kg K)
+C_p = 1.005 ;  % Input value in kJ/(kg K)
+R = 0.287 ;  % Standard value at 25 deg C, in kJ/(kg K)
+s_0 = 8.24449 ;  % kJ/(kg K)
+T_0 = 200 ; % The reference temperature for entropy
+P_0 =  100 ; % The reference pressure for entropy
+P2 = P1 * ((r)^gamma);
+V2 = V1/r;
+T2 = T1 * ((r)^(gamma -1 ));
+T3 = T2 +  (q_in/C_v);
+P3 = P2 *(T3/T2);
+V3= V2;
+T4 = T3 * ((1/r) ^ (gamma-1));
+P4 = P3 * ((1/r)^ gamma);
+V4 = V1;
+q_out = C_v * (T4 -T1);
+w_net = q_in - q_out;  
+efficiency = w_net /q_in ;
+s_1 = (C_p * log( T1/T_0)) - ( R * (log (P1/P_0)));
+s_2  = (C_p * log( T2/T_0)) - ( R * (log (P2/P_0)));
+s_3  = (C_p * log( T3/T_0)) - ( R * (log (P3/P_0)));
+s_4  =  (C_p * log( T3/T_0)) - ( R * (log (P3/P_0)));
+app.V2inCCEditField.Value = num2str(V2);
+app.V3inCCEditField.Value = num2str(V3);
+app.V4inCCEditField.Value = num2str(V4);
+app.T2inKelvinEditField.Value = num2str(T2);
+app.T3inKelvinEditField.Value  = num2str(T3);
+app.T4inKelvinEditField.Value  = num2str(T4);
+app.P2inkPaEditField.Value   =  num2str(P2);
+app.P3inkPaEditField_2.Value = num2str(P3);
+app.P4inkPaEditField.Value  = num2str(P4);
+app.NetworkdonepercycleinkJkgEditField.Value = num2str(w_net);
+%app.HeatoutinkJkgEditField.Value = num2str(w_net - q_in);
+app.EfficiencyEditField.Value = num2str(efficiency);
+
+V_temp1 = linspace(V1,V2,100) ;
+V_temp2 = V2 * ones(1,10);
+V_temp3 = linspace(V3,V4,100);
+v_temp4 = V4 * ones (1,10);
+P = P1 .*((V1./V_temp1).^gamma) ;
+V = V_temp1;
+c = app.n +1; 
+ clr_arry = [ "blue"  , "green" , "red"  , "cyan" , "magenta", "black" ] ;
+if c <= 6
+  clr1= clr_arry(1, c);
+  app.n = app.n + 1;
+  cc= app.n ;
+  app.cycl = 1;
+else 
+    c = 1 ;
+    app.n = 1 ;
+    clr1= clr_arry(1, c);
+   close (1)
+   close (2)
+   app.cycl = 0;
+%    clear app
+end
+if app.cycl >0 
+figure (1)
+ylabel("Pressure in kPa")
+xlabel('Volume in cubic m')
+title('Plot of Pressure vs Volume ')
+plot(V,P,clr1)
+hold on
+P = P2:0.1*P2:P3 ;
+[ a,b] = size (P) ;
+V = V2 .* ones(1,b) ;
+plot(V,P, clr1)
+hold on
+V_temp3= V3 : 0.01*(V4-V3) :V4;
+V = V_temp3 ;
+P=0 ;
+P = P3 .*((V3./V_temp3).^gamma) ;
+ plot(V,P,clr1) ;
+ hold on
+P =0;
+V =0;
+V = v_temp4;
+P = linspace(P4, P1,10) ;
+%plot(V,P,'DisplayName', "{" + (r) + "}", clr1)
+plot(V,P)
+ylabel("Pressure in kPa")
+xlabel('Volume in cubic m')
+title('Plot of Pressure vs Volume ')
+%tex = text(50,6000,'$r ','FontSize',18,'Color',clr1)
+hold on
+% legend('r ', num2str(r),'AutoUpdate','on')
+ %legend show
+
+% if cc ==1
+%     legend ('Parameters are', num2str(r,V1 ))
+% else     
+%     legappend(' ',num2str(r,V1))
+% end
+figure (2)
+ylabel("Temperature in Kelvin ")
+xlabel('Specific Entropy in kJ / (Kg K)')
+title('Plot of Temperature vs Specific Entropy ')
+T = 0;
+S = 0;
+T = linspace(T1,T2, 100);
+P = linspace(P1,P2,100);
+V = linspace (V1, V2,100);
+S = s_1 * ones(1,100);
+%S = (C_p .* log( T./T1))   - ( R * ( log (P./P1))) + s_1;
+plot (S, T, clr1)
+hold on
+S = 0;
+T = 0;
+P = 0;
+T = linspace(T2,T3,100);
+
+P = linspace (P2,P3,100);
+S = (C_p .* log( T./T2))   - ( R .* ( log (P./P2))) + s_1;
+plot (S, T, clr1)
+hold on
+s_33 = S(1, end);
+S = 0;
+T = 0;
+P = 0;
+T = linspace(T3,T4,100);
+S = s_33 * ones(1,100);
+plot (S,T, clr1);
+hold on
+S = 0;
+T =0;
+P = 0;
+T = linspace(T4,T1,100);
+P = linspace(P4,P1,100);
+S = (C_p .* log( T./T4))   - ( R .* ( log (P./P4))) + s_33 ;
+plot(S,T, clr1)
+ylabel("Temperature in Kelvin ")
+xlabel('Specific Entropy in kJ / (Kg K)')
+title('Plot of Temperature vs Specific Entropy ')
+hold on 
+end 
+            
+        end
+    end
+
+    % Component initialization
+    methods (Access = private)
+
+        % Create UIFigure and components
+        function createComponents(app)
+
+            % Create UIFigure and hide until all components are created
+            app.UIFigure = uifigure('Visible', 'off');
+            app.UIFigure.Position = [100 100 640 528];
+            app.UIFigure.Name = 'MATLAB App';
+
+            % Create SuctionPressureinKPaSliderLabel
+            app.SuctionPressureinKPaSliderLabel = uilabel(app.UIFigure);
+            app.SuctionPressureinKPaSliderLabel.HorizontalAlignment = 'right';
+            app.SuctionPressureinKPaSliderLabel.Position = [126 445 136 22];
+            app.SuctionPressureinKPaSliderLabel.Text = 'Suction Pressure in KPa';
+
+            % Create SuctionPressureinKPaSlider
+            app.SuctionPressureinKPaSlider = uislider(app.UIFigure);
+            app.SuctionPressureinKPaSlider.Limits = [95 105];
+            app.SuctionPressureinKPaSlider.ValueChangedFcn = createCallbackFcn(app, @SuctionPressureinKPaSliderValueChanged, true);
+            app.SuctionPressureinKPaSlider.Position = [298 454 158 3];
+            app.SuctionPressureinKPaSlider.Value = 95;
+
+            % Create InputTemperatureinKelvinLabel
+            app.InputTemperatureinKelvinLabel = uilabel(app.UIFigure);
+            app.InputTemperatureinKelvinLabel.HorizontalAlignment = 'right';
+            app.InputTemperatureinKelvinLabel.Position = [15 372 110 43];
+            app.InputTemperatureinKelvinLabel.Text = {'Input Temperature'; ' in Kelvin'};
+
+            % Create InputTemperatureinKelvinSlider
+            app.InputTemperatureinKelvinSlider = uislider(app.UIFigure);
+            app.InputTemperatureinKelvinSlider.Limits = [273.15 323.15];
+            app.InputTemperatureinKelvinSlider.ValueChangedFcn = createCallbackFcn(app, @InputTemperatureinKelvinSliderValueChanged, true);
+            app.InputTemperatureinKelvinSlider.Position = [174 402 95 3];
+            app.InputTemperatureinKelvinSlider.Value = 273.15;
+
+            % Create CompressionRatioSliderLabel
+            app.CompressionRatioSliderLabel = uilabel(app.UIFigure);
+            app.CompressionRatioSliderLabel.HorizontalAlignment = 'right';
+            app.CompressionRatioSliderLabel.Position = [15 342 108 22];
+            app.CompressionRatioSliderLabel.Text = 'Compression Ratio';
+
+            % Create CompressionRatioSlider
+            app.CompressionRatioSlider = uislider(app.UIFigure);
+            app.CompressionRatioSlider.Limits = [6 12];
+            app.CompressionRatioSlider.ValueChangedFcn = createCallbackFcn(app, @CompressionRatioSliderValueChanged, true);
+            app.CompressionRatioSlider.Position = [178 351 82 3];
+            app.CompressionRatioSlider.Value = 6;
+
+            % Create HeatAdditioninkJKgSliderLabel
+            app.HeatAdditioninkJKgSliderLabel = uilabel(app.UIFigure);
+            app.HeatAdditioninkJKgSliderLabel.HorizontalAlignment = 'right';
+            app.HeatAdditioninkJKgSliderLabel.Position = [316 382 123 33];
+            app.HeatAdditioninkJKgSliderLabel.Text = 'Heat Addition in kJ/Kg';
+
+            % Create HeatAdditioninkJKgSlider
+            app.HeatAdditioninkJKgSlider = uislider(app.UIFigure);
+            app.HeatAdditioninkJKgSlider.Limits = [1650 1800];
+            app.HeatAdditioninkJKgSlider.ValueChangedFcn = createCallbackFcn(app, @HeatAdditioninkJKgSliderValueChanged, true);
+            app.HeatAdditioninkJKgSlider.Position = [460 402 111 3];
+            app.HeatAdditioninkJKgSlider.Value = 1650;
+
+            % Create EditField
+            app.EditField = uieditfield(app.UIFigure, 'text');
+            app.EditField.FontSize = 14;
+            app.EditField.FontWeight = 'bold';
+            app.EditField.FontColor = [0 0 1];
+            app.EditField.Position = [210 486 251 24];
+            app.EditField.Value = 'Otto Cycle calculation and Display';
+
+            % Create CylinderVolumeinCCSliderLabel
+            app.CylinderVolumeinCCSliderLabel = uilabel(app.UIFigure);
+            app.CylinderVolumeinCCSliderLabel.HorizontalAlignment = 'right';
+            app.CylinderVolumeinCCSliderLabel.Position = [269 332 126 22];
+            app.CylinderVolumeinCCSliderLabel.Text = 'Cylinder Volume in CC';
+
+            % Create CylinderVolumeinCCSlider
+            app.CylinderVolumeinCCSlider = uislider(app.UIFigure);
+            app.CylinderVolumeinCCSlider.Limits = [50 500];
+            app.CylinderVolumeinCCSlider.ValueChangedFcn = createCallbackFcn(app, @CylinderVolumeinCCSliderValueChanged, true);
+            app.CylinderVolumeinCCSlider.Position = [416 341 150 3];
+            app.CylinderVolumeinCCSlider.Value = 50;
+
+            % Create CalculateandPlotButton
+            app.CalculateandPlotButton = uibutton(app.UIFigure, 'push');
+            app.CalculateandPlotButton.ButtonPushedFcn = createCallbackFcn(app, @Calculate, true);
+            app.CalculateandPlotButton.Position = [272 300 113 22];
+            app.CalculateandPlotButton.Text = 'Calculate and Plot';
+
+            % Create V2inCCEditFieldLabel
+            app.V2inCCEditFieldLabel = uilabel(app.UIFigure);
+            app.V2inCCEditFieldLabel.HorizontalAlignment = 'right';
+            app.V2inCCEditFieldLabel.Position = [39 269 54 22];
+            app.V2inCCEditFieldLabel.Text = 'V2 in CC';
+
+            % Create V2inCCEditField
+            app.V2inCCEditField = uieditfield(app.UIFigure, 'text');
+            app.V2inCCEditField.ValueChangedFcn = createCallbackFcn(app, @Calculate, true);
+            app.V2inCCEditField.Position = [116 269 63 21];
+            app.V2inCCEditField.Value = '0';
+
+            % Create T2inKelvinEditFieldLabel
+            app.T2inKelvinEditFieldLabel = uilabel(app.UIFigure);
+            app.T2inKelvinEditFieldLabel.HorizontalAlignment = 'right';
+            app.T2inKelvinEditFieldLabel.Position = [33 233 68 22];
+            app.T2inKelvinEditFieldLabel.Text = 'T2 in Kelvin';
+
+            % Create T2inKelvinEditField
+            app.T2inKelvinEditField = uieditfield(app.UIFigure, 'text');
+            app.T2inKelvinEditField.Position = [116 233 63 22];
+
+            % Create P2inkPaEditFieldLabel
+            app.P2inkPaEditFieldLabel = uilabel(app.UIFigure);
+            app.P2inkPaEditFieldLabel.HorizontalAlignment = 'right';
+            app.P2inkPaEditFieldLabel.Position = [45 192 57 22];
+            app.P2inkPaEditFieldLabel.Text = {'P2 in kPa'; ''};
+
+            % Create P2inkPaEditField
+            app.P2inkPaEditField = uieditfield(app.UIFigure, 'text');
+            app.P2inkPaEditField.Position = [117 190 58 26];
+
+            % Create V3inCCEditFieldLabel
+            app.V3inCCEditFieldLabel = uilabel(app.UIFigure);
+            app.V3inCCEditFieldLabel.HorizontalAlignment = 'right';
+            app.V3inCCEditFieldLabel.Position = [186 268 54 22];
+            app.V3inCCEditFieldLabel.Text = 'V3 in CC';
+
+            % Create V3inCCEditField
+            app.V3inCCEditField = uieditfield(app.UIFigure, 'text');
+            app.V3inCCEditField.Position = [272 268 65 22];
+            app.V3inCCEditField.Value = '0';
+
+            % Create T3inKelvinEditFieldLabel
+            app.T3inKelvinEditFieldLabel = uilabel(app.UIFigure);
+            app.T3inKelvinEditFieldLabel.HorizontalAlignment = 'right';
+            app.T3inKelvinEditFieldLabel.Position = [184 233 68 22];
+            app.T3inKelvinEditFieldLabel.Text = 'T3 in Kelvin';
+
+            % Create T3inKelvinEditField
+            app.T3inKelvinEditField = uieditfield(app.UIFigure, 'text');
+            app.T3inKelvinEditField.Position = [273 233 64 21];
+
+            % Create P4inkPaEditFieldLabel
+            app.P4inkPaEditFieldLabel = uilabel(app.UIFigure);
+            app.P4inkPaEditFieldLabel.HorizontalAlignment = 'right';
+            app.P4inkPaEditFieldLabel.Position = [351 192 57 22];
+            app.P4inkPaEditFieldLabel.Text = 'P4 in kPa';
+
+            % Create P4inkPaEditField
+            app.P4inkPaEditField = uieditfield(app.UIFigure, 'text');
+            app.P4inkPaEditField.Position = [430 192 86 22];
+
+            % Create V4inCCEditFieldLabel
+            app.V4inCCEditFieldLabel = uilabel(app.UIFigure);
+            app.V4inCCEditFieldLabel.HorizontalAlignment = 'right';
+            app.V4inCCEditFieldLabel.Position = [351 268 54 22];
+            app.V4inCCEditFieldLabel.Text = 'V4 in CC';
+
+            % Create V4inCCEditField
+            app.V4inCCEditField = uieditfield(app.UIFigure, 'text');
+            app.V4inCCEditField.Position = [427 268 89 22];
+            app.V4inCCEditField.Value = '0';
+
+            % Create P3inkPaEditField_2Label
+            app.P3inkPaEditField_2Label = uilabel(app.UIFigure);
+            app.P3inkPaEditField_2Label.HorizontalAlignment = 'right';
+            app.P3inkPaEditField_2Label.Position = [192 192 57 22];
+            app.P3inkPaEditField_2Label.Text = 'P3 in kPa';
+
+            % Create P3inkPaEditField_2
+            app.P3inkPaEditField_2 = uieditfield(app.UIFigure, 'text');
+            app.P3inkPaEditField_2.Position = [273 192 64 21];
+
+            % Create T4inKelvinEditFieldLabel
+            app.T4inKelvinEditFieldLabel = uilabel(app.UIFigure);
+            app.T4inKelvinEditFieldLabel.HorizontalAlignment = 'right';
+            app.T4inKelvinEditFieldLabel.Position = [346 232 68 22];
+            app.T4inKelvinEditFieldLabel.Text = 'T4 in Kelvin';
+
+            % Create T4inKelvinEditField
+            app.T4inKelvinEditField = uieditfield(app.UIFigure, 'text');
+            app.T4inKelvinEditField.Position = [427 232 89 22];
+
+            % Create NetworkdonepercycleinkJkgEditFieldLabel
+            app.NetworkdonepercycleinkJkgEditFieldLabel = uilabel(app.UIFigure);
+            app.NetworkdonepercycleinkJkgEditFieldLabel.HorizontalAlignment = 'right';
+            app.NetworkdonepercycleinkJkgEditFieldLabel.Position = [24 145 178 22];
+            app.NetworkdonepercycleinkJkgEditFieldLabel.Text = 'Net work done per cycle in kJ/kg';
+
+            % Create NetworkdonepercycleinkJkgEditField
+            app.NetworkdonepercycleinkJkgEditField = uieditfield(app.UIFigure, 'text');
+            app.NetworkdonepercycleinkJkgEditField.Position = [217 145 100 22];
+            app.NetworkdonepercycleinkJkgEditField.Value = '0';
+
+            % Create EfficiencyEditFieldLabel
+            app.EfficiencyEditFieldLabel = uilabel(app.UIFigure);
+            app.EfficiencyEditFieldLabel.HorizontalAlignment = 'right';
+            app.EfficiencyEditFieldLabel.Position = [367 145 56 22];
+            app.EfficiencyEditFieldLabel.Text = 'Efficiency';
+
+            % Create EfficiencyEditField
+            app.EfficiencyEditField = uieditfield(app.UIFigure, 'text');
+            app.EfficiencyEditField.Position = [438 145 100 22];
+
+            % Create TextArea
+            app.TextArea = uitextarea(app.UIFigure);
+            app.TextArea.FontSize = 14;
+            app.TextArea.FontColor = [1 0 1];
+            app.TextArea.Position = [174 26 351 89];
+            app.TextArea.Value = {'This app calculates the salient pressures and temperature and also plots the P-V and T-s curves. '; 'This app can plot 5 graphs at a time. Then it will restart. '; 'If either graph is not visible, move the top figure window, please.'};
+
+            % Show the figure after all components are created
+            app.UIFigure.Visible = 'on';
+        end
+    end
+
+    % App creation and deletion
+    methods (Access = public)
+
+        % Construct app
+        function app = Otto_Cycle
+
+            % Create UIFigure and components
+            createComponents(app)
+
+            % Register the app with App Designer
+            registerApp(app, app.UIFigure)
+
+            if nargout == 0
+                clear app
+            end
+        end
+
+        % Code that executes before app deletion
+        function delete(app)
+
+            % Delete UIFigure when app is deleted
+            delete(app.UIFigure)
+        end
+    end
+end
